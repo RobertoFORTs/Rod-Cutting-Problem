@@ -3,7 +3,7 @@
 import random
 import time
 
-def dinamicRodCutting(p, n):
+def dinamicRodCutting(p, n): #Bottom-Up
     # r armazena os valores máximos de venda para cada comprimento de tora
     r = [0] * (n + 1)
     
