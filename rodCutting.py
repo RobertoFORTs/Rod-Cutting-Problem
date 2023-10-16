@@ -2,55 +2,40 @@ import random
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-
-
-def dinamicRodCutting(p, n):  # Bottom-Up
-    # r armazena os valores máximos de venda para cada comprimento de tora
-    r = [0] * (n + 1)
-
-    # Loop para considerar cada possível comprimento da tora de 1 a n
-    for j in range(1, n + 1):
-        # Inicializa o valor máximo como '-infinito' para garantir que qualquer valor real substituirá isso
-        q = float('-inf')
-
-        # Loop interno para avaliar cada combinação de corte possível
-        for i in range(1, j + 1):
-            # Atualiza q para o valor máximo entre o valor atual e a nova combinação de corte
-            q = max(q, p[i] + r[j - i])
-
-        # Atualiza o valor máximo de venda para a tora de comprimento j
-        r[j] = q
-
-    # Retorna o valor máximo de venda para a tora de comprimento n
-    return r[n]
+def dynamicRodCutting(p, n):  # Bottom-Up
+    
+    # Cria uma lista de tamanho n+1 preenchida com zeros para armazenar os resultados ótimos
+    r = [0] * (n+1)  
+    for j in range(1, n+1):  # Loop para cada tamanho possível da tora
+        
+        q = float('-inf')  # Inicializa a variável q com um valor muito baixo para encontrar o máximo
+        
+        for i in range(1, j + 1):  # Loop para cada possível corte da tora
+            
+            q = max(q, p[i-1] + r[j - i])  # Calcula o valor máximo entre o valor do corte atual e a combinação de cortes anteriores
+            
+        r[j] = q  # Armazena o valor máximo para o tamanho atual da tora
+        
+    return r[-1]  # Retorna o valor máximo para a tora de tamanho n
 
 def greedyRodCutting(p, n):
-    # Inicializa o valor total de venda
-    valor_total = 0
-
-    # Continua enquanto houver tora para cortar
-    while n > 0:
-        # Inicializa a densidade máxima como '-infinito' para garantir que qualquer densidade real substituirá isso
-        max_densidade = float('-inf')
-
-        # Avalia cada possível comprimento de tora
-        for i in range(1, n + 1):
-            # Calcula a densidade para o comprimento i
-            densidade_atual = p[i] / i
-
-            # Atualiza a densidade máxima e o corte correspondente se a densidade atual for maior
-            if densidade_atual > max_densidade :
-                max_densidade = densidade_atual
-                corte = i
-
-        # Adiciona ao valor total o preço do pedaço de tora com a densidade máxima
-        valor_total += p[corte]
-
-        # Diminui a tora pelo comprimento do corte
-        n -= corte
-
-    # Retorna o valor total de venda
-    return valor_total
+    
+    valor_total = 0  # Inicializa o valor total como zero
+    
+    while n > 1:  # Enquanto o tamanho da tora for maior que 1
+        max_densidade = float('-inf')  # Inicializa a máxima densidade com um valor muito baixo
+        
+        for i in range(1, n):  # Loop para cada possível corte da tora
+            densidade_atual = p[i-1] / i  # Calcula a densidade atual para o corte atual
+            
+            if densidade_atual > max_densidade and i <= n:  # Verifica se a densidade atual é maior que a máxima densidade e se o corte é válido
+                max_densidade = densidade_atual  # Atualiza a máxima densidade
+                corte = i  # Armazena o tamanho do corte com a maior densidade
+                
+        valor_total += p[corte-1]  # Adiciona o valor do corte selecionado ao valor total
+        n -= corte  # Reduz o tamanho da tora pelo tamanho do corte selecionado
+        
+    return valor_total  # Retorna o valor total obtido
 
 
 inc = int(input("Digite o valor de início (inc): "))
@@ -63,15 +48,14 @@ print("----------------------------------------------------")
 results = []
 
 for inc in range(inc, fim + 1, stp):
-    p = [0] + [random.randint(1, inc) for _ in range(inc)]
-    p.sort()
+    p = [random.randint(1, 10) for _ in range(inc)] #constroi vetor de preços
     start = time.time()
-    vDP = dinamicRodCutting(p, inc)
-    tDP = time.time() - start
+    vDP = dynamicRodCutting(p, inc)
+    tDP = time.time() - start #Calcula tempo de execução 
 
     start = time.time()
     vGreedy = greedyRodCutting(p, inc)
-    tGreedy = time.time() - start
+    tGreedy = time.time() - start #Calcula tempo de execução
 
     accuracy = (vGreedy / vDP) * 100
     print(f"{inc} {vDP} {tDP:.6f} {vGreedy} {tGreedy:.6f} {accuracy:.2f}")
@@ -84,7 +68,6 @@ for inc in range(inc, fim + 1, stp):
         'tGreedy': tGreedy,
         '%': accuracy
     })
-
 # Salvar para CSV
 df = pd.DataFrame(results)
 df.to_csv('data.csv', index=False)
