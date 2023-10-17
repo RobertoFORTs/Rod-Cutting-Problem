@@ -50,7 +50,6 @@ results = []
 
 for inc in range(inc, fim + 1, stp):
     p = [random.randint(1, 10) for _ in range(inc)] #constroi vetor de preços
-    #p.sort()
     start = time.time()
     vDP = dynamicRodCutting(p, inc)
     tDP = time.time() - start #Calcula tempo de execução 
